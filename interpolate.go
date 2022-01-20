@@ -59,7 +59,7 @@ func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
 }
 
 func lerp(v1, v2, r float64) float64 {
-	return v1 + (v2-v1)*r
+	return (1-r)*v1 + r*v2
 }
 
 func hslOrhsv(h1, s1, o1, h2, s2, o2, v float64) (hh, ss, oo float64) {
