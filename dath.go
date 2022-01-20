@@ -2,8 +2,6 @@
 // handling color data in a variety of color spaces
 package dath
 
-import "log"
-
 // BUG(ifamakes): Conversion can be off when going back and forth due to the unreliablity of floats.
 
 //"github.com/shopspring/decimal"
@@ -48,10 +46,16 @@ func FromHSV(h, s, v float64) ColorOption {
 	}
 }
 
+func FromLAB(l, a, b float64) ColorOption {
+	return func(c *color) {
+		x, y, z := lab2xyz(l, a, b)
+		c.r, c.g, c.b = xyz2rgb(x, y, z)
+	}
+}
+
 func FromLUV(l, u, v float64) ColorOption {
 	return func(c *color) {
 		x, y, z := luv2xyz(l, u, v)
-		log.Println(x, y, z)
 		c.r, c.g, c.b = xyz2rgb(x, y, z)
 	}
 }

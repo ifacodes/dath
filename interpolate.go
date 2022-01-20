@@ -14,6 +14,7 @@ const (
 	UseHSL
 	UseLUV
 	UseHCL
+	UseLAB
 )
 
 // Interpolate returns the interpolation of the given colors at a given ratio.
@@ -46,7 +47,11 @@ func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
 	case UseHSL:
 		hsl := mixHSL(c1.HSL(), c2.HSL(), v)
 		c = NewColor(FromHSL(hsl.H, hsl.S, hsl.L))
+	case UseLAB:
+		lab := mixLAB(c1.LAB(), c2.LAB(), v)
+		c = NewColor(FromLAB(lab.L, lab.A, lab.B))
 	case UseHCL:
+		fallthrough
 	case UseLUV:
 		fallthrough
 	default:
@@ -81,6 +86,14 @@ func mixLUV(c1 *LUV, c2 *LUV, v float64) *LUV {
 	return new
 }
 
+func mixLAB(c1 *LAB, c2 *LAB, v float64) *LAB {
+	new := &LAB{}
+	new.L = lerp(c1.L, c2.L, v)
+	new.A = lerp(c1.A, c2.A, v)
+	new.B = lerp(c1.B, c2.B, v)
+	return new
+}
+
 func mixRGB(c1 *color, c2 *color, v float64) *color {
 	new := &color{}
 	new.r = lerp(c1.r, c2.r, v)
@@ -98,11 +111,6 @@ func mixHSL(c1 *HSL, c2 *HSL, v float64) *HSL {
 	hsl := &HSL{}
 	hsl.H, hsl.S, hsl.L = hslOrhsv(c1.H, c1.S, c1.L, c2.H, c2.S, c2.L, v)
 	return hsl
-}
-
-func mixHCL() *HCL {
-	hcl := &HCL{}
-	return hcl
 }
 
 /* func easeInOut(x float64) float64 {

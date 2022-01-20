@@ -46,3 +46,21 @@ func xyz2luv(x, y, z float64) (l, u, v float64) {
 	v = 13 * l * (vv - vr)
 	return
 }
+
+func xyz2lab(x, y, z float64) (l, a, b float64) {
+	xr := x / d65[0]
+	yr := y / d65[1]
+	zr := y / d65[2]
+	f := func(x float64) float64 {
+		if x > 0.00856 {
+			return math.Cbrt(x)
+		} else {
+			return (903.3*x + 16) / 116
+		}
+	}
+	fy := f(yr)
+	l = 116*fy - 16
+	a = 500 * (f(xr) - fy)
+	b = 200 * (fy - f(zr))
+	return
+}
