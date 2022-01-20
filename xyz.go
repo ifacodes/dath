@@ -50,7 +50,7 @@ func xyz2luv(x, y, z float64) (l, u, v float64) {
 func xyz2lab(x, y, z float64) (l, a, b float64) {
 	xr := x / d65[0]
 	yr := y / d65[1]
-	zr := y / d65[2]
+	zr := z / d65[2]
 	f := func(x float64) float64 {
 		if x > 0.00856 {
 			return math.Cbrt(x)
