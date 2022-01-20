@@ -1,7 +1,6 @@
 package dath
 
 import (
-	"log"
 	"math"
 )
 
@@ -51,9 +50,8 @@ func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
 	case UseLUV:
 		fallthrough
 	default:
-		log.Println(v)
 		luv := mixLUV(c1.LUV(), c2.LUV(), v)
-		c = NewColor(FromLUV(luv.L, luv.V, luv.V))
+		c = NewColor(FromLUV(luv.L, luv.U, luv.V))
 	}
 	return
 }

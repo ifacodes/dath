@@ -39,5 +39,16 @@ func ExampleInterpolate() {
 	result := Interpolate(c1, c2)
 
 	fmt.Printf("result == %v\n", *result)
-	// Output: result == {0.36 0.72 0.86}
+	// Output: result == {0.41 0.72 0.86}
+}
+
+func TestInterpolate(t *testing.T) {
+	c1 := NewColor(FromHSL(225.0, 1.0, 0.8))
+	c2 := NewColor(FromRGB(6, 185, 183))
+
+	result := Interpolate(c1, c2, 0.0)
+
+	if *result != *c1 {
+		t.Errorf("result == %#v; want %#v", *result, *c1)
+	}
 }
