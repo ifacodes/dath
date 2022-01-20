@@ -2,6 +2,16 @@ package dath
 
 import "math"
 
+type HSV struct {
+	H, S, V float64
+}
+
+func (c *color) HSV() *HSV {
+	h := &HSV{}
+	h.H, h.S, h.V = rgb2hsv(c.r, c.g, c.b)
+	return h
+}
+
 func hsv2rgb(h, s, v float64) (r, g, b float64) {
 	f := func(n float64) float64 {
 		k := math.Mod(n+(h/60.0), 6.0)

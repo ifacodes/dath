@@ -2,6 +2,17 @@ package dath
 
 import "math"
 
+type LUV struct {
+	L, U, V float64
+}
+
+func (c *color) LUV() *LUV {
+	luv := &LUV{}
+	x, y, z := rgb2xyz(c.r, c.g, c.b)
+	luv.L, luv.U, luv.V = xyz2luv(x, y, z)
+	return luv
+}
+
 func luv2xyz(l, u, v float64) (x, y, z float64) {
 	f := func(a, b, c, d float64) float64 {
 		return (d - b) / (a - c)

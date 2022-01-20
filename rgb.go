@@ -2,6 +2,18 @@ package dath
 
 import "math"
 
+type RGB struct {
+	R, G, B int
+}
+
+func (c *color) RGB() *RGB {
+	return &RGB{
+		R: int(c.r * 255.0),
+		G: int(c.g * 255.0),
+		B: int(c.b * 255.0),
+	}
+}
+
 func rgb2xyz(r, g, b float64) (x, y, z float64) {
 	if r > 0.04045 {
 		r = math.Pow((r+0.055)/1.055, 2.4)
@@ -24,20 +36,28 @@ func rgb2xyz(r, g, b float64) (x, y, z float64) {
 	return
 }
 
-func (c *color) HSV() *hsv {
-	h := &hsv{}
-	h.H, h.S, h.V = rgb2hsv(c.r, c.g, c.b)
-	return h
-}
+func calculateHue(max, chroma, r, g, b float64) (h float64) {
+	if chroma == 0.0 {
+		h = 0.0
+	} else if max == r {
+		if g < b {
+			h = 6.0
+		}
+		h += (g - b) / chroma
 
-func (c *color) HSL() (h, s, l float64) {
-	return rgb2hsl(c.r, c.g, c.b)
+	} else if max == g {
+		h = 2.0 + ((b - r) / chroma)
+	} else if max == b {
+		h = 4.0 + ((r - g) / chroma)
+	}
+	h *= 60.0
+	return
 }
 
 func rgb2hsv(r, g, b float64) (h, s, v float64) {
 	v = math.Max(r, math.Max(g, b))
 	chroma := v - math.Min(r, math.Min(g, b))
-	h = hslCalculateHue(v, chroma, r, g, b)
+	h = calculateHue(v, chroma, r, g, b)
 	if v != 0 {
 		s = chroma / v
 	} else {
@@ -50,7 +70,7 @@ func rgb2hsl(r, g, b float64) (h, s, l float64) {
 	min := math.Min(r, math.Min(g, b))
 	chroma := max - min
 	l = max - (chroma / 2.0)
-	h = hslCalculateHue(max, chroma, r, g, b)
+	h = calculateHue(max, chroma, r, g, b)
 	if l == 0 || l == 1 {
 		s = 0
 	} else {

@@ -2,6 +2,10 @@ package dath
 
 import "math"
 
+type HCL struct {
+	H, C, L float64
+}
+
 func (cc *color) HCL() (h, c, l float64) {
 	return rgb2hcl(cc.r, cc.g, cc.b)
 }

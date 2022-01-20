@@ -2,6 +2,10 @@ package dath
 
 import "math"
 
+type XYZ struct {
+	X, Y, Z float64
+}
+
 func xyz2rgb(x, y, z float64) (r, g, b float64) {
 	r = (x * sRGBInv[0][0]) + (y * sRGBInv[0][1]) + (z * sRGBInv[0][2])
 	g = (x * sRGBInv[1][0]) + (y * sRGBInv[1][1]) + (z * sRGBInv[1][2])

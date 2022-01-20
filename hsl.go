@@ -2,6 +2,16 @@ package dath
 
 import "math"
 
+type HSL struct {
+	H, S, L float64
+}
+
+func (c *color) HSL() *HSL {
+	hsl := &HSL{}
+	hsl.H, hsl.S, hsl.L = rgb2hsl(c.r, c.g, c.b)
+	return hsl
+}
+
 func hsl2rgb(h, s, l float64) (r, g, b float64) {
 	f := func(n float64) float64 {
 		a := s * math.Min(l, 1.0-l)

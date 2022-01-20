@@ -1,3 +1,3 @@
-module github.com/ifamakes/color
+module github.com/ifamakes/dath
 
 go 1.17
