@@ -62,6 +62,12 @@ func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
 }
 
 func lerp(v1, v2, r float64) float64 {
+	if math.IsNaN(v1) {
+		v1 = 0.0
+	}
+	if math.IsNaN(v2) {
+		v2 = 0.0
+	}
 	return (1-r)*v1 + r*v2
 }
 
