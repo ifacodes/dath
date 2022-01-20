@@ -10,7 +10,6 @@ type InterpolateType int64
 const (
 	None InterpolateType = iota
 	UseRGB
-	UseRGBA
 	UseCYMK
 	UseHSV
 	UseHSL
@@ -41,7 +40,6 @@ func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
 	switch t {
 	case UseRGB:
 		c = mixRGB(c1, c2, v)
-	case UseRGBA:
 	case UseCYMK:
 	case UseHSV:
 		hsv := mixHSV(c1.HSV(), c2.HSV(), v)

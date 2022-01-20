@@ -26,6 +26,10 @@ func TestCreateColors(t *testing.T) {
 	if (*c5 != color{0.84, 0.26, 0.37}) {
 		t.Errorf("c == %#v; want color{0.83, 0.25, 0.36}", *c5)
 	}
+	c6 := NewColor(FromCMYK(0.40, 0.32, 0.0, 0.0))
+	if (*c6 != color{0.6, 0.7, 1.0}) {
+		t.Errorf("c == %#v; want color{0.6, 0.7, 1.0}", *c6)
+	}
 }
 
 func ExampleInterpolate() {

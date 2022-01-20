@@ -28,8 +28,10 @@ func FromRGB(r, g, b int) ColorOption {
 	}
 }
 
-func FromCYMK(c, y, m, k float64) ColorOption {
-	return func(c *color) {}
+func FromCMYK(c, m, y, k float64) ColorOption {
+	return func(cc *color) {
+		cc.r, cc.g, cc.b = cmyk2rgb(c, m, y, k)
+	}
 }
 
 func FromHSL(h, s, l float64) ColorOption {
