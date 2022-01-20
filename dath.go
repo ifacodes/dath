@@ -17,7 +17,26 @@ func NewColor(c ...ColorOption) *color {
 	for _, opt := range c {
 		opt(color)
 	}
+	color.clip()
 	return color
+}
+
+func (c *color) clip() {
+	if c.r < 0.0 {
+		c.r = 0.0
+	} else if c.r > 255.0 {
+		c.r = 255.0
+	}
+	if c.g < 0.0 {
+		c.g = 0.0
+	} else if c.g > 255.0 {
+		c.g = 255.0
+	}
+	if c.b < 0.0 {
+		c.b = 0.0
+	} else if c.b > 255.0 {
+		c.b = 255.0
+	}
 }
 
 func FromRGB(r, g, b int) ColorOption {
