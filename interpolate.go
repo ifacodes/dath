@@ -4,6 +4,7 @@ import (
 	"math"
 )
 
+// InterpolateType offers an enum to select which color space to interpolate in.
 type InterpolateType int64
 
 const (
@@ -21,7 +22,7 @@ const (
 // vt specifies the ratio and the color space to interpolate within (float64 or InterpolateType).
 // i.e. Interpolate(color1, color1, 0.75, UseHSV)
 // The default ratio and color space are 0.5 and UseLUV
-func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
+func Interpolate(c1 *Color, c2 *Color, vt ...interface{}) (c *Color) {
 	var v float64
 	var t InterpolateType
 	if len(vt) > 0 {
@@ -43,20 +44,20 @@ func Interpolate(c1 *color, c2 *color, vt ...interface{}) (c *color) {
 	case UseCYMK:
 	case UseHSV:
 		hsv := mixHSV(c1.HSV(), c2.HSV(), v)
-		c = NewColor(FromHSV(hsv.H, hsv.S, hsv.V))
+		c = NewColor().FromHSV(hsv.H, hsv.S, hsv.V)
 	case UseHSL:
 		hsl := mixHSL(c1.HSL(), c2.HSL(), v)
-		c = NewColor(FromHSL(hsl.H, hsl.S, hsl.L))
+		c = NewColor().FromHSL(hsl.H, hsl.S, hsl.L)
 	case UseLAB:
 		lab := mixLAB(c1.LAB(), c2.LAB(), v)
-		c = NewColor(FromLAB(lab.L, lab.A, lab.B))
+		c = NewColor().FromLAB(lab.L, lab.A, lab.B)
 	case UseHCL:
 		fallthrough
 	case UseLUV:
 		fallthrough
 	default:
 		luv := mixLUV(c1.LUV(), c2.LUV(), v)
-		c = NewColor(FromLUV(luv.L, luv.U, luv.V))
+		c = NewColor().FromLUV(luv.L, luv.U, luv.V)
 	}
 	return
 }
@@ -100,8 +101,8 @@ func mixLAB(c1 *LAB, c2 *LAB, v float64) *LAB {
 	return new
 }
 
-func mixRGB(c1 *color, c2 *color, v float64) *color {
-	new := &color{}
+func mixRGB(c1 *Color, c2 *Color, v float64) *Color {
+	new := &Color{}
 	new.r = lerp(c1.r, c2.r, v)
 	new.g = lerp(c1.g, c2.g, v)
 	new.b = lerp(c1.b, c2.b, v)

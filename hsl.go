@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// HSL struct contains the converted values from a Color
 type HSL struct {
 	H, S, L float64
 }
 
-func (c *color) HSL() *HSL {
+// HSL takes a Color and returns a HSL struct
+func (c *Color) HSL() *HSL {
 	hsl := &HSL{}
 	hsl.H, hsl.S, hsl.L = rgb2hsl(c.r, c.g, c.b)
 	return hsl

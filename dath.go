@@ -6,22 +6,21 @@ package dath
 
 //"github.com/shopspring/decimal"
 
-type ColorOption func(c *color)
+type ColorOption func(c *Color)
 
-type color struct {
+// Color contains the base color values used for converting between spaces
+type Color struct {
 	r, g, b float64
 }
 
-func NewColor(c ...ColorOption) *color {
-	color := &color{}
-	for _, opt := range c {
-		opt(color)
-	}
-	color.clip()
+// NewColor returns a new Color from the provided color values.
+// It's recommended to use this funciton to create your colors in case implementation changes.
+func NewColor() *Color {
+	color := &Color{}
 	return color
 }
 
-func (c *color) clip() {
+func (c *Color) clip() {
 	if c.r < 0.0 {
 		c.r = 0.0
 	} else if c.r > 255.0 {
@@ -39,48 +38,55 @@ func (c *color) clip() {
 	}
 }
 
-func FromRGB(r, g, b int) ColorOption {
-	return func(c *color) {
-		c.r = float64(r) / 255.0
-		c.g = float64(g) / 255.0
-		c.b = float64(b) / 255.0
-	}
+// Takes RGB values and return a Color
+func (c *Color) FromRGB(r, g, b int) *Color {
+	c.r = float64(r) / 255.0
+	c.g = float64(g) / 255.0
+	c.b = float64(b) / 255.0
+	c.clip()
+	return c
 }
 
-func FromCMYK(c, m, y, k float64) ColorOption {
-	return func(cc *color) {
-		cc.r, cc.g, cc.b = cmyk2rgb(c, m, y, k)
-	}
+// Takes CMYK values and returns a Color
+func (cc *Color) FromCMYK(c, m, y, k float64) *Color {
+	cc.r, cc.g, cc.b = cmyk2rgb(c, m, y, k)
+	cc.clip()
+	return cc
 }
 
-func FromHSL(h, s, l float64) ColorOption {
-	return func(c *color) {
-		c.r, c.g, c.b = hsl2rgb(h, s, l)
-	}
+// Takes HSL values and returns a Color
+func (c *Color) FromHSL(h, s, l float64) *Color {
+	c.r, c.g, c.b = hsl2rgb(h, s, l)
+	c.clip()
+	return c
 }
 
-func FromHSV(h, s, v float64) ColorOption {
-	return func(c *color) {
-		c.r, c.g, c.b = hsv2rgb(h, s, v)
-	}
+// Takes HSV values and returns a Color
+func (c *Color) FromHSV(h, s, v float64) *Color {
+	c.r, c.g, c.b = hsv2rgb(h, s, v)
+	c.clip()
+	return c
 }
 
-func FromLAB(l, a, b float64) ColorOption {
-	return func(c *color) {
-		x, y, z := lab2xyz(l, a, b)
-		c.r, c.g, c.b = xyz2rgb(x, y, z)
-	}
+// Takes LAB values and returns a Color
+func (c *Color) FromLAB(l, a, b float64) *Color {
+	x, y, z := lab2xyz(l, a, b)
+	c.r, c.g, c.b = xyz2rgb(x, y, z)
+	c.clip()
+	return c
 }
 
-func FromLUV(l, u, v float64) ColorOption {
-	return func(c *color) {
-		x, y, z := luv2xyz(l, u, v)
-		c.r, c.g, c.b = xyz2rgb(x, y, z)
-	}
+// Takes LUV values and returns a Color
+func (c *Color) FromLUV(l, u, v float64) *Color {
+	x, y, z := luv2xyz(l, u, v)
+	c.r, c.g, c.b = xyz2rgb(x, y, z)
+	c.clip()
+	return c
 }
 
-func FromHCL(h, c, l float64) ColorOption {
-	return func(cc *color) {
-		cc.r, cc.g, cc.b = hcl2rgb(h, c, l)
-	}
+// Takes HCL values and returns a Color
+func (cc *Color) FromHCL(h, c, l float64) *Color {
+	cc.r, cc.g, cc.b = hcl2rgb(h, c, l)
+	cc.clip()
+	return cc
 }

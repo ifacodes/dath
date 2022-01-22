@@ -2,6 +2,7 @@ package dath
 
 import "math"
 
+// XYZ struct contains the converted values from a Color
 type XYZ struct {
 	X, Y, Z float64
 }

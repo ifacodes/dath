@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// LAB struct contains the converted values from a Color
 type RGB struct {
 	R, G, B int
 }
 
-func (c *color) RGB() *RGB {
+// RGB takes a Color and returns a RGB struct
+func (c *Color) RGB() *RGB {
 	return &RGB{
 		R: int(c.r * 255.0),
 		G: int(c.g * 255.0),
