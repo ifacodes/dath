@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// HCL struct contains the converted values from a Color
 type HCL struct {
 	H, C, L float64
 }
 
-func (cc *color) HCL() (h, c, l float64) {
+// HCL takes a Color and returns a HCL struct
+func (cc *Color) HCL() (h, c, l float64) {
 	return rgb2hcl(cc.r, cc.g, cc.b)
 }
 
@@ -27,7 +29,7 @@ func hcl2rgb(h, c, l float64) (r, g, b float64) {
 	return
 }
 
-func (cc *color) LCH() (l, c, h float64) {
+func (cc *Color) LCH() (l, c, h float64) {
 	h, c, l = cc.HCL()
 	return l, c, h
 }

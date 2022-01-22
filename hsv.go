@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// HSV struct contains the converted values from a Color
 type HSV struct {
 	H, S, V float64
 }
 
-func (c *color) HSV() *HSV {
+// HSV takes a Color and returns a HSV struct
+func (c *Color) HSV() *HSV {
 	h := &HSV{}
 	h.H, h.S, h.V = rgb2hsv(c.r, c.g, c.b)
 	return h

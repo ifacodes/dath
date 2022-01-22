@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// LUV struct contains the converted values from a Color
 type LUV struct {
 	L, U, V float64
 }
 
-func (c *color) LUV() *LUV {
+// LUV takes a Color and returns a LUV struct
+func (c *Color) LUV() *LUV {
 	luv := &LUV{}
 	x, y, z := rgb2xyz(c.r, c.g, c.b)
 	luv.L, luv.U, luv.V = xyz2luv(x, y, z)

@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// CYMK struct contains the converted values from a Color
 type CMYK struct {
 	C, M, Y, K float64
 }
 
-func (cc *color) CMYK() *CMYK {
+// CMYK takes a Color and returns a CYMK struct
+func (cc *Color) CMYK() *CMYK {
 	r := &CMYK{}
 	r.C, r.M, r.Y, r.K = rgb2cmyk(cc.r, cc.g, cc.b)
 	return r

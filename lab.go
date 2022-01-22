@@ -2,11 +2,13 @@ package dath
 
 import "math"
 
+// LAB struct contains the converted values from a Color
 type LAB struct {
 	L, A, B float64
 }
 
-func (c *color) LAB() *LAB {
+// LAB takes a Color and returns a LAB struct
+func (c *Color) LAB() *LAB {
 	lab := &LAB{}
 	x, y, z := rgb2xyz(c.r, c.g, c.b)
 	lab.L, lab.A, lab.B = xyz2lab(x, y, z)
