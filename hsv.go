@@ -1,10 +1,12 @@
 package dath
 
-import "math"
+import (
+	d "github.com/shopspring/decimal"
+)
 
 // HSV struct contains the converted values from a Color
 type HSV struct {
-	H, S, V float64
+	H, S, V d.Decimal
 }
 
 // HSV takes a Color and returns a HSV struct
@@ -14,13 +16,13 @@ func (c *Color) HSV() *HSV {
 	return h
 }
 
-func hsv2rgb(h, s, v float64) (r, g, b float64) {
-	f := func(n float64) float64 {
-		k := math.Mod(n+(h/60.0), 6.0)
-		return v - v*s*math.Max(0.0, math.Min(1.0, math.Min(4.0-k, k)))
+func hsv2rgb(h, s, v d.Decimal) (r, g, b d.Decimal) {
+	f := func(n d.Decimal) d.Decimal {
+		k := n.Add(h.Div(d.NewFromFloat(60.0))).Mod(d.NewFromFloat(6.0))
+		return v.Sub(v.Mul(s).Mul(d.Max(d.NewFromFloat(0.0), d.Min(d.NewFromFloat(1.0), d.NewFromFloat(4.0).Sub(k), k))))
 	}
-	r = f(5)
-	g = f(3)
-	b = f(1)
+	r = f(d.NewFromFloat(5.0)).Round(2)
+	g = f(d.NewFromFloat(3)).Round(2)
+	b = f(d.NewFromFloat(1)).Round(2)
 	return
 }

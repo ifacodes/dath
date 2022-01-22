@@ -1,10 +1,16 @@
 package dath
 
-import "math"
+import (
+	d "github.com/shopspring/decimal"
+)
+
+var (
+	o = d.New(1, 0)
+)
 
 // CYMK struct contains the converted values from a Color
 type CMYK struct {
-	C, M, Y, K float64
+	C, M, Y, K d.Decimal
 }
 
 // CMYK takes a Color and returns a CYMK struct
@@ -14,17 +20,17 @@ func (cc *Color) CMYK() *CMYK {
 	return r
 }
 
-func cmyk2rgb(c, m, y, k float64) (r, g, b float64) {
-	r = math.Round((1-c)*(1-k)*10) / 10
-	g = math.Round((1-m)*(1-k)*10) / 10
-	b = math.Round((1-y)*(1-k)*10) / 10
+func cmyk2rgb(c, m, y, k d.Decimal) (r, g, b d.Decimal) {
+	r = o.Sub(c).Mul(o.Sub(k))
+	g = o.Sub(m).Mul(o.Sub(k))
+	b = o.Sub(y).Mul(o.Sub(k))
 	return
 }
 
-func rgb2cmyk(r, g, b float64) (c, m, y, k float64) {
-	k = 1 - math.Max(r, math.Max(g, b))
-	c = (1 - r - k) / (1 - k)
-	m = (1 - g - k) / (1 - k)
-	y = (1 - b - k) / (1 - k)
+func rgb2cmyk(r, g, b d.Decimal) (c, m, y, k d.Decimal) {
+	k = o.Sub(d.Max(r, d.Max(g, b)))
+	c = o.Sub(r.Sub(k)).Div(o.Sub(k))
+	m = o.Sub(g.Sub(k)).Div(o.Sub(k))
+	y = o.Sub(b.Sub(k)).Div(o.Sub(k))
 	return
 }

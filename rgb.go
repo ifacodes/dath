@@ -1,82 +1,88 @@
 package dath
 
-import "math"
+import (
+	"math"
+
+	d "github.com/shopspring/decimal"
+)
 
 // LAB struct contains the converted values from a Color
 type RGB struct {
-	R, G, B int
+	R, G, B d.Decimal
 }
 
 // RGB takes a Color and returns a RGB struct
 func (c *Color) RGB() *RGB {
 	return &RGB{
-		R: int(c.r * 255.0),
-		G: int(c.g * 255.0),
-		B: int(c.b * 255.0),
+		R: c.r.Mul(d.NewFromFloat(255.0)).Round(2),
+		G: c.g.Mul(d.NewFromFloat(255.0)).Round(2),
+		B: c.b.Mul(d.NewFromFloat(255.0)).Round(2),
 	}
 }
 
-func rgb2xyz(r, g, b float64) (x, y, z float64) {
-	if r > 0.04045 {
-		r = math.Pow((r+0.055)/1.055, 2.4)
+func rgb2xyz(r, g, b d.Decimal) (x, y, z float64) {
+	rf, _ := r.Float64()
+	gf, _ := g.Float64()
+	bf, _ := b.Float64()
+	if rf > 0.04045 {
+		rf = math.Pow((rf+0.055)/1.055, 2.4)
 	} else {
-		r = r / 12.92
+		rf = rf / 12.92
 	}
-	if g > 0.04045 {
-		g = math.Pow((g+0.055)/1.055, 2.4)
+	if gf > 0.04045 {
+		gf = math.Pow((gf+0.055)/1.055, 2.4)
 	} else {
-		g = g / 12.92
+		gf = gf / 12.92
 	}
-	if b > 0.04045 {
-		b = math.Pow((b+0.055)/1.055, 2.4)
+	if bf > 0.04045 {
+		bf = math.Pow((bf+0.055)/1.055, 2.4)
 	} else {
-		b = b / 12.92
+		bf = bf / 12.92
 	}
-	x = (r * sRGB[0][0]) + (g * sRGB[0][1]) + (b * sRGB[0][2])
-	y = (r * sRGB[1][0]) + (g * sRGB[1][1]) + (b * sRGB[1][2])
-	z = (r * sRGB[2][0]) + (g * sRGB[2][1]) + (b * sRGB[2][2])
+	x = (rf * sRGB[0][0]) + (gf * sRGB[0][1]) + (bf * sRGB[0][2])
+	y = (rf * sRGB[1][0]) + (gf * sRGB[1][1]) + (bf * sRGB[1][2])
+	z = (rf * sRGB[2][0]) + (gf * sRGB[2][1]) + (bf * sRGB[2][2])
 	return
 }
 
-func calculateHue(max, chroma, r, g, b float64) (h float64) {
-	if chroma == 0.0 {
-		h = 0.0
-	} else if max == r {
-		if g < b {
-			h = 6.0
+func calculateHue(max, chroma, r, g, b d.Decimal) (h d.Decimal) {
+	if chroma.Equal(d.NewFromFloat(0.0)) {
+		h = chroma
+	} else if max.Equal(r) {
+		if g.LessThan(b) {
+			h = d.NewFromFloat(6.0)
 		}
-		h += (g - b) / chroma
+		h = h.Add(g.Sub(b).Div(chroma))
 
-	} else if max == g {
-		h = 2.0 + ((b - r) / chroma)
+	} else if max.Equal(g) {
+		h = d.NewFromFloat(2.0).Add(b.Sub(r).Div(chroma))
 	} else if max == b {
-		h = 4.0 + ((r - g) / chroma)
+		h = d.NewFromFloat(4.0).Add(r.Sub(g).Div(chroma))
 	}
-	h *= 60.0
+	h = h.Mul(d.NewFromFloat(60.0))
 	return
 }
 
-func rgb2hsv(r, g, b float64) (h, s, v float64) {
-	v = math.Max(r, math.Max(g, b))
-	chroma := v - math.Min(r, math.Min(g, b))
+func rgb2hsv(r, g, b d.Decimal) (h, s, v d.Decimal) {
+	v = d.Max(r, g, b)
+	chroma := v.Sub(d.Min(r, g, b))
 	h = calculateHue(v, chroma, r, g, b)
-	if v != 0 {
-		s = chroma / v
+	if !v.Equal(d.New(0, 0)) {
+		s = chroma.Div(v)
 	} else {
-		s = 0
+		s = d.New(0, 0)
 	}
 	return
 }
-func rgb2hsl(r, g, b float64) (h, s, l float64) {
-	max := math.Max(r, math.Max(g, b))
-	min := math.Min(r, math.Min(g, b))
-	chroma := max - min
-	l = max - (chroma / 2.0)
+func rgb2hsl(r, g, b d.Decimal) (h, s, l d.Decimal) {
+	max := d.Max(r, g, b)
+	chroma := max.Sub(d.Min(r, g, b))
+	l = max.Sub(chroma.Div(d.NewFromFloat(2.0)))
 	h = calculateHue(max, chroma, r, g, b)
-	if l == 0 || l == 1 {
-		s = 0
+	if l.Equal(d.New(0, 0)) || l.Equal(d.New(1, 0)) {
+		s = d.New(0, 0)
 	} else {
-		s = ((max - l) / math.Min(l, 1-l))
+		s = max.Sub(l).Div(d.Min(l, d.New(1, 0).Sub(l)))
 	}
 	return
 }

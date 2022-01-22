@@ -1,18 +1,18 @@
 package dath
 
-import "math"
-
-// HCL struct contains the converted values from a Color
+/* // HCL struct contains the converted values from a Color
 type HCL struct {
-	H, C, L float64
+	H, C, L d.Decimal
 }
 
 // HCL takes a Color and returns a HCL struct
-func (cc *Color) HCL() (h, c, l float64) {
-	return rgb2hcl(cc.r, cc.g, cc.b)
+func (cc *Color) HCL() *HCL {
+	hcl := &HCL{}
+	hcl.H, hcl.C, hcl.L = rgb2hcl(cc.r, cc.g, cc.b)
+	return hcl
 }
 
-func rgb2hcl(r, g, b float64) (h, c, l float64) {
+func rgb2hcl(r, g, b d.Decimal) (h, c, l d.Decimal) {
 	x, y, z := rgb2xyz(r, g, b)
 	l, u, v := xyz2luv(x, y, z)
 	c = math.Sqrt(math.Pow(u, 2) + math.Pow(v, 2))
@@ -23,13 +23,13 @@ func rgb2hcl(r, g, b float64) (h, c, l float64) {
 	return
 }
 
-func hcl2rgb(h, c, l float64) (r, g, b float64) {
+func hcl2rgb(h, c, l d.Decimal) (r, g, b d.Decimal) {
 	x, y, z := luv2xyz(l, c*math.Cos(h*(math.Pi/180.0)), c*math.Sin(h*(math.Pi/180.0)))
 	r, g, b = xyz2rgb(x, y, z)
 	return
 }
 
-func (cc *Color) LCH() (l, c, h float64) {
-	h, c, l = cc.HCL()
-	return l, c, h
-}
+func (cc *Color) LCH() (l, c, h d.Decimal) {
+	hcl := cc.HCL()
+	return hcl.L, hcl.C, hcl.H
+} */

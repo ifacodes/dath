@@ -4,13 +4,15 @@ package dath
 
 // BUG(ifamakes): Conversion can be off when going back and forth due to the unreliablity of floats.
 
-//"github.com/shopspring/decimal"
+import (
+	"fmt"
 
-type ColorOption func(c *Color)
+	d "github.com/shopspring/decimal"
+)
 
 // Color contains the base color values used for converting between spaces
 type Color struct {
-	r, g, b float64
+	r, g, b d.Decimal
 }
 
 // NewColor returns a new Color from the provided color values.
@@ -20,50 +22,55 @@ func NewColor() *Color {
 	return color
 }
 
+func (c *Color) String() string {
+	return fmt.Sprintf("{%s %s %s}", c.r.String(), c.g.String(), c.b.String())
+
+}
+
 func (c *Color) clip() {
-	if c.r < 0.0 {
-		c.r = 0.0
-	} else if c.r > 255.0 {
-		c.r = 255.0
+	if c.r.LessThan(d.New(0, 0)) {
+		c.r = d.New(0, 0)
+	} else if c.r.GreaterThan(d.New(255, 0)) {
+		c.r = d.New(255, 0)
 	}
-	if c.g < 0.0 {
-		c.g = 0.0
-	} else if c.g > 255.0 {
-		c.g = 255.0
+	if c.g.LessThan(d.New(0, 0)) {
+		c.g = d.New(0, 0)
+	} else if c.g.GreaterThan(d.New(255, 0)) {
+		c.g = d.New(255, 0)
 	}
-	if c.b < 0.0 {
-		c.b = 0.0
-	} else if c.b > 255.0 {
-		c.b = 255.0
+	if c.b.LessThan(d.New(0, 0)) {
+		c.b = d.New(0, 0)
+	} else if c.b.GreaterThan(d.New(255, 0)) {
+		c.b = d.New(255, 0)
 	}
 }
 
 // Takes RGB values and return a Color
 func (c *Color) FromRGB(r, g, b int) *Color {
-	c.r = float64(r) / 255.0
-	c.g = float64(g) / 255.0
-	c.b = float64(b) / 255.0
+	c.r = d.NewFromFloatWithExponent(float64(r)/255.0, -2)
+	c.g = d.NewFromFloatWithExponent(float64(g)/255.0, -2)
+	c.b = d.NewFromFloatWithExponent(float64(b)/255.0, -2)
 	c.clip()
 	return c
 }
 
 // Takes CMYK values and returns a Color
 func (cc *Color) FromCMYK(c, m, y, k float64) *Color {
-	cc.r, cc.g, cc.b = cmyk2rgb(c, m, y, k)
+	cc.r, cc.g, cc.b = cmyk2rgb(d.NewFromFloat(c), d.NewFromFloat(m), d.NewFromFloat(y), d.NewFromFloat(k))
 	cc.clip()
 	return cc
 }
 
 // Takes HSL values and returns a Color
 func (c *Color) FromHSL(h, s, l float64) *Color {
-	c.r, c.g, c.b = hsl2rgb(h, s, l)
+	c.r, c.g, c.b = hsl2rgb(d.NewFromFloat(h), d.NewFromFloat(s), d.NewFromFloat(l))
 	c.clip()
 	return c
 }
 
 // Takes HSV values and returns a Color
 func (c *Color) FromHSV(h, s, v float64) *Color {
-	c.r, c.g, c.b = hsv2rgb(h, s, v)
+	c.r, c.g, c.b = hsv2rgb(d.NewFromFloat(h), d.NewFromFloat(s), d.NewFromFloat(v))
 	c.clip()
 	return c
 }
@@ -84,9 +91,9 @@ func (c *Color) FromLUV(l, u, v float64) *Color {
 	return c
 }
 
-// Takes HCL values and returns a Color
+/* // Takes HCL values and returns a Color
 func (cc *Color) FromHCL(h, c, l float64) *Color {
-	cc.r, cc.g, cc.b = hcl2rgb(h, c, l)
+	cc.r, cc.g, cc.b = hcl2rgb(d.NewFromFloat(h), d.NewFromFloat(c), d.NewFromFloat(l))
 	cc.clip()
 	return cc
-}
+} */

@@ -1,17 +1,23 @@
 package dath
 
-import "math"
+import (
+	"math"
+
+	d "github.com/shopspring/decimal"
+	dec "github.com/shopspring/decimal"
+)
 
 // LUV struct contains the converted values from a Color
 type LUV struct {
-	L, U, V float64
+	L, U, V dec.Decimal
 }
 
 // LUV takes a Color and returns a LUV struct
 func (c *Color) LUV() *LUV {
 	luv := &LUV{}
 	x, y, z := rgb2xyz(c.r, c.g, c.b)
-	luv.L, luv.U, luv.V = xyz2luv(x, y, z)
+	l, u, v := xyz2luv(x, y, z)
+	luv.L, luv.U, luv.V = d.NewFromFloatWithExponent(l, -2), d.NewFromFloatWithExponent(u, -2), d.NewFromFloatWithExponent(v, -2)
 	return luv
 }
 

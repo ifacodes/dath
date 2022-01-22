@@ -1,17 +1,22 @@
 package dath
 
-import "math"
+import (
+	"math"
+
+	d "github.com/shopspring/decimal"
+)
 
 // LAB struct contains the converted values from a Color
 type LAB struct {
-	L, A, B float64
+	L, A, B d.Decimal
 }
 
 // LAB takes a Color and returns a LAB struct
 func (c *Color) LAB() *LAB {
 	lab := &LAB{}
 	x, y, z := rgb2xyz(c.r, c.g, c.b)
-	lab.L, lab.A, lab.B = xyz2lab(x, y, z)
+	l, a, b := xyz2lab(x, y, z)
+	lab.L, lab.A, lab.B = d.NewFromFloatWithExponent(l, -2), d.NewFromFloatWithExponent(a, -2), d.NewFromFloatWithExponent(b, -2)
 	return lab
 }
 

@@ -1,34 +1,66 @@
 package dath
 
-import "math"
+import (
+	"math"
+
+	d "github.com/shopspring/decimal"
+)
 
 // XYZ struct contains the converted values from a Color
 type XYZ struct {
-	X, Y, Z float64
+	X, Y, Z d.Decimal
 }
 
-func xyz2rgb(x, y, z float64) (r, g, b float64) {
-	r = (x * sRGBInv[0][0]) + (y * sRGBInv[0][1]) + (z * sRGBInv[0][2])
-	g = (x * sRGBInv[1][0]) + (y * sRGBInv[1][1]) + (z * sRGBInv[1][2])
-	b = (x * sRGBInv[2][0]) + (y * sRGBInv[2][1]) + (z * sRGBInv[2][2])
-	if r <= 0.0031308 {
-		r = 12.92 * r
+/* func xyz2rgb(x, y, z d.Decimal) (r, g, b d.Decimal) {
+	r = d.Sum(x.Mul(sRGBInv[0][0]), y.Mul(sRGBInv[0][1]), z.Mul(sRGBInv[0][2]))
+	g = d.Sum(x.Mul(sRGBInv[1][0]), y.Mul(sRGBInv[1][1]), z.Mul(sRGBInv[1][2]))
+	b = d.Sum(x.Mul(sRGBInv[2][0]), y.Mul(sRGBInv[2][1]), z.Mul(sRGBInv[2][2]))
+
+	_ = d.NewFromFloat(0.0031308)
+	_ = d.NewFromFloat(12.92)
+	_ = d.NewFromFloat(0.055)
+	_ = d.NewFromFloat(1.055)
+	c5 := d.NewFromFloat(1.0 / 2.2)
+
+	rlog, _ := r.ExpTaylor(20)
+	r = c5.Mul(rlog)
+
+	glog, _ := g.ExpTaylor(20)
+	g = c5.Mul(glog)
+
+	blog, _ := b.ExpTaylor(20)
+	b = c5.Mul(blog)
+
+	log.Printf("r: %s, g: %s, b: %s\n", r.String(), g.String(), b.String())
+	r = r.Round(2)
+	g = g.Round(2)
+	b = b.Round(2)
+
+	return
+} */
+
+func xyz2rgb(x, y, z float64) (r, g, b d.Decimal) {
+	rf := (x * sRGBInv[0][0]) + (y * sRGBInv[0][1]) + (z * sRGBInv[0][2])
+	gf := (x * sRGBInv[1][0]) + (y * sRGBInv[1][1]) + (z * sRGBInv[1][2])
+	bf := (x * sRGBInv[2][0]) + (y * sRGBInv[2][1]) + (z * sRGBInv[2][2])
+	if rf <= 0.0031308 {
+		rf = 12.92 * rf
 	} else {
-		r = 1.055*math.Pow(r, (1.0/2.4)) - 0.055
+		rf = 1.055*math.Pow(rf, (1.0/2.4)) - 0.055
 	}
-	if g <= 0.0031308 {
-		g = 12.92 * g
+	if gf <= 0.0031308 {
+		gf = 12.92 * gf
 	} else {
-		g = 1.055*math.Pow(g, (1.0/2.4)) - 0.055
+		gf = 1.055*math.Pow(gf, (1.0/2.4)) - 0.055
 	}
-	if b <= 0.0031308 {
-		b = 12.92 * b
+	if bf <= 0.0031308 {
+		bf = 12.92 * bf
 	} else {
-		b = 1.055*math.Pow(b, (1.0/2.4)) - 0.055
+		bf = 1.055*math.Pow(bf, (1.0/2.4)) - 0.055
 	}
-	r = math.Round((r * 100)) / 100
-	g = math.Round((g * 100)) / 100
-	b = math.Round((b * 100)) / 100
+	r = d.NewFromFloatWithExponent(rf, -2)
+	g = d.NewFromFloatWithExponent(gf, -2)
+	b = d.NewFromFloatWithExponent(bf, -2)
 	return
 }
 

@@ -1,10 +1,12 @@
 package dath
 
-import "math"
+import (
+	d "github.com/shopspring/decimal"
+)
 
 // HSL struct contains the converted values from a Color
 type HSL struct {
-	H, S, L float64
+	H, S, L d.Decimal
 }
 
 // HSL takes a Color and returns a HSL struct
@@ -14,14 +16,14 @@ func (c *Color) HSL() *HSL {
 	return hsl
 }
 
-func hsl2rgb(h, s, l float64) (r, g, b float64) {
-	f := func(n float64) float64 {
-		a := s * math.Min(l, 1.0-l)
-		k := math.Mod(n+(h/30.0), 12.0)
-		return l - a*math.Max(-1.0, math.Min(1.0, math.Min(k-3.0, 9.0-k)))
+func hsl2rgb(h, s, l d.Decimal) (r, g, b d.Decimal) {
+	f := func(n d.Decimal) d.Decimal {
+		a := s.Mul(d.Min(l, d.NewFromFloat(1.0).Sub(l)))
+		k := n.Add(h.Div(d.NewFromFloat(30.0))).Mod(d.NewFromFloat(12.0))
+		return l.Sub(a.Mul(d.Max(d.NewFromFloat(-1.0), d.Min(d.NewFromFloat(1.0), k.Sub(d.NewFromFloat(3.0)), d.NewFromFloat(9.0).Sub(k)))))
 	}
-	r = math.Round((f(0) * 100)) / 100
-	g = math.Round((f(8) * 100)) / 100
-	b = math.Round((f(4) * 100)) / 100
+	r = f(d.NewFromFloat(0.0)).Round(2)
+	g = f(d.NewFromFloat(8.0)).Round(2)
+	b = f(d.NewFromFloat(4.0)).Round(2)
 	return
 }

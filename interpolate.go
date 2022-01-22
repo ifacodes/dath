@@ -1,7 +1,7 @@
 package dath
 
 import (
-	"math"
+	d "github.com/shopspring/decimal"
 )
 
 // InterpolateType offers an enum to select which color space to interpolate in.
@@ -23,19 +23,19 @@ const (
 // i.e. Interpolate(color1, color1, 0.75, UseHSV)
 // The default ratio and color space are 0.5 and UseLUV
 func Interpolate(c1 *Color, c2 *Color, vt ...interface{}) (c *Color) {
-	var v float64
+	var v d.Decimal
 	var t InterpolateType
 	if len(vt) > 0 {
 		for _, n := range vt {
 			switch n := n.(type) {
 			case float64:
-				v = n
+				v = d.NewFromFloat(n)
 			case InterpolateType:
 				t = n
 			}
 		}
 	} else {
-		v = 0.5
+		v = d.NewFromFloat(0.5)
 	}
 
 	switch t {
@@ -44,48 +44,57 @@ func Interpolate(c1 *Color, c2 *Color, vt ...interface{}) (c *Color) {
 	case UseCYMK:
 	case UseHSV:
 		hsv := mixHSV(c1.HSV(), c2.HSV(), v)
-		c = NewColor().FromHSV(hsv.H, hsv.S, hsv.V)
+		c = NewColor()
+		c.r, c.g, c.b = hsv2rgb(hsv.H, hsv.S, hsv.V)
 	case UseHSL:
 		hsl := mixHSL(c1.HSL(), c2.HSL(), v)
-		c = NewColor().FromHSL(hsl.H, hsl.S, hsl.L)
+		c = NewColor()
+		c.r, c.g, c.b = hsl2rgb(hsl.H, hsl.S, hsl.L)
 	case UseLAB:
 		lab := mixLAB(c1.LAB(), c2.LAB(), v)
-		c = NewColor().FromLAB(lab.L, lab.A, lab.B)
+		lf, _ := lab.L.Float64()
+		af, _ := lab.A.Float64()
+		bf, _ := lab.B.Float64()
+		c = NewColor().FromLAB(lf, af, bf)
 	case UseHCL:
 		fallthrough
 	case UseLUV:
 		fallthrough
 	default:
 		luv := mixLUV(c1.LUV(), c2.LUV(), v)
-		c = NewColor().FromLUV(luv.L, luv.U, luv.V)
+		lf, _ := luv.L.Float64()
+		uf, _ := luv.U.Float64()
+		vf, _ := luv.V.Float64()
+		c = NewColor().FromLUV(lf, uf, vf)
 	}
 	return
 }
 
-func lerp(v1, v2, r float64) float64 {
-	if math.IsNaN(v1) {
-		v1 = 0.0
-	}
-	if math.IsNaN(v2) {
-		v2 = 0.0
-	}
-	return (1-r)*v1 + r*v2
+func lerp(v1, v2, r d.Decimal) d.Decimal {
+	// I don't know what will happen here... I'll have to find out.
+	/* 	if math.IsNaN(v1) {
+	   		v1 = 0.0
+	   	}
+	   	if math.IsNaN(v2) {
+	   		v2 = 0.0
+	   	} */
+	return d.NewFromFloat(1.0).Sub(r).Mul(v1).Add(r.Mul(v2))
 }
 
-func hslOrhsv(h1, s1, o1, h2, s2, o2, v float64) (hh, ss, oo float64) {
-	if (h2 - h1) > 180 {
-		hh = h1 + 360
-		hh = math.Mod((1-v)*hh+v*h2, 360.0)
+func hslOrhsv(h1, s1, o1, h2, s2, o2, v d.Decimal) (hh, ss, oo d.Decimal) {
+	if h2.Sub(h1).GreaterThan(d.NewFromFloat(180.0)) {
+		hh = h1.Add(d.NewFromFloat(360.0))
+		hh = d.NewFromFloat(1.0).Sub(v).Mul(hh).Add(v).Mul(h2).Mod(d.NewFromFloat(360.0))
 	}
-	if (h2 - h1) <= 180 {
-		hh = h1 + v*(h2-h1)
+	if h2.Sub(h1).LessThanOrEqual(d.NewFromFloat(180.0)) {
+		hh = h1.Add(v.Mul(h2.Sub(h1)))
 	}
-	ss = math.Max(0.0, math.Min((1-v)*s1+v*s2, 1.0))
-	oo = math.Max(0.0, math.Min((1-v)*o1+v*o2, 1.0))
+	ss = d.Max(d.NewFromFloat(0.0), d.Min(lerp(s1, s2, v), d.NewFromFloat(1.0)))
+	oo = d.Max(d.NewFromFloat(0.0), d.Min(lerp(o1, o2, v), d.NewFromFloat(1.0)))
 	return
 }
 
-func mixLUV(c1 *LUV, c2 *LUV, v float64) *LUV {
+func mixLUV(c1 *LUV, c2 *LUV, v d.Decimal) *LUV {
 	new := &LUV{}
 	new.L = lerp(c1.L, c2.L, v)
 	new.U = lerp(c1.U, c2.U, v)
@@ -93,7 +102,7 @@ func mixLUV(c1 *LUV, c2 *LUV, v float64) *LUV {
 	return new
 }
 
-func mixLAB(c1 *LAB, c2 *LAB, v float64) *LAB {
+func mixLAB(c1 *LAB, c2 *LAB, v d.Decimal) *LAB {
 	new := &LAB{}
 	new.L = lerp(c1.L, c2.L, v)
 	new.A = lerp(c1.A, c2.A, v)
@@ -101,7 +110,7 @@ func mixLAB(c1 *LAB, c2 *LAB, v float64) *LAB {
 	return new
 }
 
-func mixRGB(c1 *Color, c2 *Color, v float64) *Color {
+func mixRGB(c1 *Color, c2 *Color, v d.Decimal) *Color {
 	new := &Color{}
 	new.r = lerp(c1.r, c2.r, v)
 	new.g = lerp(c1.g, c2.g, v)
@@ -109,12 +118,12 @@ func mixRGB(c1 *Color, c2 *Color, v float64) *Color {
 	return new
 }
 
-func mixHSV(c1 *HSV, c2 *HSV, v float64) *HSV {
+func mixHSV(c1 *HSV, c2 *HSV, v d.Decimal) *HSV {
 	hsv := &HSV{}
 	hsv.H, hsv.S, hsv.V = hslOrhsv(c1.H, c1.S, c1.V, c2.H, c2.S, c2.V, v)
 	return hsv
 }
-func mixHSL(c1 *HSL, c2 *HSL, v float64) *HSL {
+func mixHSL(c1 *HSL, c2 *HSL, v d.Decimal) *HSL {
 	hsl := &HSL{}
 	hsl.H, hsl.S, hsl.L = hslOrhsv(c1.H, c1.S, c1.L, c2.H, c2.S, c2.L, v)
 	return hsl
