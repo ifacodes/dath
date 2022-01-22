@@ -25,6 +25,15 @@ func xyz2rgb(x, y, z float64) (r, g, b d.Decimal) {
 	} else {
 		bf = 1.055*math.Pow(bf, (1.0/2.4)) - 0.055
 	}
+	if math.IsNaN(rf) {
+		rf = 0.0
+	}
+	if math.IsNaN(gf) {
+		gf = 0.0
+	}
+	if math.IsNaN(bf) {
+		bf = 0.0
+	}
 	r = d.NewFromFloatWithExponent(rf, -2)
 	g = d.NewFromFloatWithExponent(gf, -2)
 	b = d.NewFromFloatWithExponent(bf, -2)
