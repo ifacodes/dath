@@ -1,6 +1,8 @@
 package dath
 
 import (
+	"math"
+
 	d "github.com/shopspring/decimal"
 )
 
@@ -23,19 +25,19 @@ const (
 // i.e. Interpolate(color1, color1, 0.75, UseHSV)
 // The default ratio and color space are 0.5 and UseLUV
 func Interpolate(c1 *Color, c2 *Color, vt ...interface{}) (c *Color) {
-	var v d.Decimal
+	var v float64
 	var t InterpolateType
 	if len(vt) > 0 {
 		for _, n := range vt {
 			switch n := n.(type) {
 			case float64:
-				v = d.NewFromFloat(n)
+				v = n
 			case InterpolateType:
 				t = n
 			}
 		}
 	} else {
-		v = d.NewFromFloat(0.5)
+		v = 0.5
 	}
 
 	switch t {
@@ -70,18 +72,22 @@ func Interpolate(c1 *Color, c2 *Color, vt ...interface{}) (c *Color) {
 	return
 }
 
-func lerp(v1, v2, r d.Decimal) d.Decimal {
+func lerp(v1, v2 d.Decimal, r float64) d.Decimal {
+	v1f, _ := v1.Float64()
+	v2f, _ := v2.Float64()
 	// I don't know what will happen here... I'll have to find out.
-	/* 	if math.IsNaN(v1) {
-	   		v1 = 0.0
-	   	}
-	   	if math.IsNaN(v2) {
-	   		v2 = 0.0
-	   	} */
-	return d.NewFromFloat(1.0).Sub(r).Mul(v1).Add(r.Mul(v2))
+	if math.IsNaN(v1f) {
+		v1f = 0.0
+	}
+	if math.IsNaN(v2f) {
+		v2f = 0.0
+	}
+	r2 := d.NewFromFloat(r)
+	return d.NewFromFloat(1.0).Sub(r2).Mul(v1).Add(r2.Mul(v2))
 }
 
-func hslOrhsv(h1, s1, o1, h2, s2, o2, v d.Decimal) (hh, ss, oo d.Decimal) {
+func hslOrhsv(h1, s1, o1, h2, s2, o2 d.Decimal, v d.Decimal) (hh, ss, oo d.Decimal) {
+
 	if h2.Sub(h1).GreaterThan(d.NewFromFloat(180.0)) {
 		hh = h1.Add(d.NewFromFloat(360.0))
 		hh = d.NewFromFloat(1.0).Sub(v).Mul(hh).Add(v).Mul(h2).Mod(d.NewFromFloat(360.0))
@@ -94,7 +100,7 @@ func hslOrhsv(h1, s1, o1, h2, s2, o2, v d.Decimal) (hh, ss, oo d.Decimal) {
 	return
 }
 
-func mixLUV(c1 *LUV, c2 *LUV, v d.Decimal) *LUV {
+func mixLUV(c1 *LUV, c2 *LUV, v float64) *LUV {
 	new := &LUV{}
 	new.L = lerp(c1.L, c2.L, v)
 	new.U = lerp(c1.U, c2.U, v)
@@ -102,7 +108,7 @@ func mixLUV(c1 *LUV, c2 *LUV, v d.Decimal) *LUV {
 	return new
 }
 
-func mixLAB(c1 *LAB, c2 *LAB, v d.Decimal) *LAB {
+func mixLAB(c1 *LAB, c2 *LAB, v float64) *LAB {
 	new := &LAB{}
 	new.L = lerp(c1.L, c2.L, v)
 	new.A = lerp(c1.A, c2.A, v)
@@ -110,7 +116,7 @@ func mixLAB(c1 *LAB, c2 *LAB, v d.Decimal) *LAB {
 	return new
 }
 
-func mixRGB(c1 *Color, c2 *Color, v d.Decimal) *Color {
+func mixRGB(c1 *Color, c2 *Color, v float64) *Color {
 	new := &Color{}
 	new.r = lerp(c1.r, c2.r, v)
 	new.g = lerp(c1.g, c2.g, v)
@@ -118,14 +124,14 @@ func mixRGB(c1 *Color, c2 *Color, v d.Decimal) *Color {
 	return new
 }
 
-func mixHSV(c1 *HSV, c2 *HSV, v d.Decimal) *HSV {
+func mixHSV(c1 *HSV, c2 *HSV, v float64) *HSV {
 	hsv := &HSV{}
-	hsv.H, hsv.S, hsv.V = hslOrhsv(c1.H, c1.S, c1.V, c2.H, c2.S, c2.V, v)
+	hsv.H, hsv.S, hsv.V = hslOrhsv(c1.H, c1.S, c1.V, c2.H, c2.S, c2.V, d.NewFromFloat(v))
 	return hsv
 }
-func mixHSL(c1 *HSL, c2 *HSL, v d.Decimal) *HSL {
+func mixHSL(c1 *HSL, c2 *HSL, v float64) *HSL {
 	hsl := &HSL{}
-	hsl.H, hsl.S, hsl.L = hslOrhsv(c1.H, c1.S, c1.L, c2.H, c2.S, c2.L, v)
+	hsl.H, hsl.S, hsl.L = hslOrhsv(c1.H, c1.S, c1.L, c2.H, c2.S, c2.L, d.NewFromFloat(v))
 	return hsl
 }
 

@@ -6,39 +6,6 @@ import (
 	d "github.com/shopspring/decimal"
 )
 
-// XYZ struct contains the converted values from a Color
-type XYZ struct {
-	X, Y, Z d.Decimal
-}
-
-/* func xyz2rgb(x, y, z d.Decimal) (r, g, b d.Decimal) {
-	r = d.Sum(x.Mul(sRGBInv[0][0]), y.Mul(sRGBInv[0][1]), z.Mul(sRGBInv[0][2]))
-	g = d.Sum(x.Mul(sRGBInv[1][0]), y.Mul(sRGBInv[1][1]), z.Mul(sRGBInv[1][2]))
-	b = d.Sum(x.Mul(sRGBInv[2][0]), y.Mul(sRGBInv[2][1]), z.Mul(sRGBInv[2][2]))
-
-	_ = d.NewFromFloat(0.0031308)
-	_ = d.NewFromFloat(12.92)
-	_ = d.NewFromFloat(0.055)
-	_ = d.NewFromFloat(1.055)
-	c5 := d.NewFromFloat(1.0 / 2.2)
-
-	rlog, _ := r.ExpTaylor(20)
-	r = c5.Mul(rlog)
-
-	glog, _ := g.ExpTaylor(20)
-	g = c5.Mul(glog)
-
-	blog, _ := b.ExpTaylor(20)
-	b = c5.Mul(blog)
-
-	log.Printf("r: %s, g: %s, b: %s\n", r.String(), g.String(), b.String())
-	r = r.Round(2)
-	g = g.Round(2)
-	b = b.Round(2)
-
-	return
-} */
-
 func xyz2rgb(x, y, z float64) (r, g, b d.Decimal) {
 	rf := (x * sRGBInv[0][0]) + (y * sRGBInv[0][1]) + (z * sRGBInv[0][2])
 	gf := (x * sRGBInv[1][0]) + (y * sRGBInv[1][1]) + (z * sRGBInv[1][2])
