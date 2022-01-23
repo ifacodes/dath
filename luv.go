@@ -4,12 +4,11 @@ import (
 	"math"
 
 	d "github.com/shopspring/decimal"
-	dec "github.com/shopspring/decimal"
 )
 
 // LUV struct contains the converted values from a Color
 type LUV struct {
-	L, U, V dec.Decimal
+	L, U, V d.Decimal
 }
 
 // LUV takes a Color and returns a LUV struct
