@@ -86,14 +86,14 @@ func lerp(v1, v2 d.Decimal, r float64) d.Decimal {
 	return d.NewFromFloat(1.0).Sub(r2).Mul(v1).Add(r2.Mul(v2))
 }
 
-func hslOrhsv(h1, s1, o1, h2, s2, o2 d.Decimal, v d.Decimal) (hh, ss, oo d.Decimal) {
-
+func hslOrhsv(h1, s1, o1, h2, s2, o2 d.Decimal, v float64) (hh, ss, oo d.Decimal) {
+	v2 := d.NewFromFloat(v)
 	if h2.Sub(h1).GreaterThan(d.NewFromFloat(180.0)) {
 		hh = h1.Add(d.NewFromFloat(360.0))
-		hh = d.NewFromFloat(1.0).Sub(v).Mul(hh).Add(v).Mul(h2).Mod(d.NewFromFloat(360.0))
+		hh = d.NewFromFloat(1.0).Sub(v2).Mul(hh).Add(v2).Mul(h2).Mod(d.NewFromFloat(360.0))
 	}
 	if h2.Sub(h1).LessThanOrEqual(d.NewFromFloat(180.0)) {
-		hh = h1.Add(v.Mul(h2.Sub(h1)))
+		hh = h1.Add(v2.Mul(h2.Sub(h1)))
 	}
 	ss = d.Max(d.NewFromFloat(0.0), d.Min(lerp(s1, s2, v), d.NewFromFloat(1.0)))
 	oo = d.Max(d.NewFromFloat(0.0), d.Min(lerp(o1, o2, v), d.NewFromFloat(1.0)))
@@ -126,12 +126,12 @@ func mixRGB(c1 *Color, c2 *Color, v float64) *Color {
 
 func mixHSV(c1 *HSV, c2 *HSV, v float64) *HSV {
 	hsv := &HSV{}
-	hsv.H, hsv.S, hsv.V = hslOrhsv(c1.H, c1.S, c1.V, c2.H, c2.S, c2.V, d.NewFromFloat(v))
+	hsv.H, hsv.S, hsv.V = hslOrhsv(c1.H, c1.S, c1.V, c2.H, c2.S, c2.V, v)
 	return hsv
 }
 func mixHSL(c1 *HSL, c2 *HSL, v float64) *HSL {
 	hsl := &HSL{}
-	hsl.H, hsl.S, hsl.L = hslOrhsv(c1.H, c1.S, c1.L, c2.H, c2.S, c2.L, d.NewFromFloat(v))
+	hsl.H, hsl.S, hsl.L = hslOrhsv(c1.H, c1.S, c1.L, c2.H, c2.S, c2.L, v)
 	return hsl
 }
 

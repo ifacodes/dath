@@ -4,12 +4,11 @@ import (
 	"math"
 
 	d "github.com/shopspring/decimal"
-	dec "github.com/shopspring/decimal"
 )
 
 // LUV struct contains the converted values from a Color
 type LUV struct {
-	L, U, V dec.Decimal
+	L, U, V d.Decimal
 }
 
 // LUV takes a Color and returns a LUV struct
@@ -17,6 +16,15 @@ func (c *Color) LUV() *LUV {
 	luv := &LUV{}
 	x, y, z := rgb2xyz(c.r, c.g, c.b)
 	l, u, v := xyz2luv(x, y, z)
+	if math.IsNaN(l) {
+		l = 0.0
+	}
+	if math.IsNaN(u) {
+		u = 0.0
+	}
+	if math.IsNaN(v) {
+		v = 0.0
+	}
 	luv.L, luv.U, luv.V = d.NewFromFloatWithExponent(l, -2), d.NewFromFloatWithExponent(u, -2), d.NewFromFloatWithExponent(v, -2)
 	return luv
 }
